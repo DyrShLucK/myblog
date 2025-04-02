@@ -1,0 +1,2 @@
+# myblog
+blog for prakticum
