@@ -1,9 +1,13 @@
 package com.myblog.repository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import com.myblog.model.Post;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +20,24 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public void save(Post post) {
-        jdbcTemplate.update(
-                "INSERT INTO post (title, image, text, tags, likes_count) VALUES (?, ?, ?, ?, ?)",
-                post.getTitle(), post.getImage(), post.getText(), post.getTags(), 0
-        );
+    public Post save(Post post) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO post (title, image, text, tags, likes_count) VALUES (?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setString(1, post.getTitle());
+            ps.setString(2, post.getImage());
+            ps.setString(3, post.getText());
+            ps.setString(4, post.getTags());
+            ps.setInt(5, 0);
+            return ps;
+        }, keyHolder);
+
+        Number generatedId = (Number) keyHolder.getKeys().get("id");
+        post.setId(generatedId.longValue());
+        return post;
     }
 
     @Override
@@ -63,5 +80,19 @@ public class JdbcNativePostRepository implements PostRepository {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+    @Override
+    public List<Post> findByTag(String tag) {
+        String sql = "SELECT * FROM post WHERE tags LIKE ?";
+        return jdbcTemplate.query(sql,
+                new Object[]{"%" + tag + "%"},
+                (rs, rowNum) -> new Post(
+                        rs.getLong("id"),
+                        rs.getString("title"),
+                        rs.getString("image"),
+                        rs.getString("text"),
+                        rs.getString("tags"),
+                        rs.getInt("likes_count")
+                ));
     }
 }

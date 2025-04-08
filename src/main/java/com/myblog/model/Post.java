@@ -14,7 +14,6 @@ public class Post {
     private String text;
     private String tags;
     private int likesCount;
-
     // Конструктор для создания из БД
     public Post(Long id, String title, String image, String text, String tags, int likesCount) {
         this.id = id;
@@ -33,6 +32,8 @@ public class Post {
         this.tags = tags;
         this.likesCount = 0;
     }
+
+
 
     public Long getId() {
         return id;
@@ -77,4 +78,7 @@ public class Post {
         this.tags = tags;
     }
 
+    public void setId(long l) {
+        this.id = l;
+    }
 }

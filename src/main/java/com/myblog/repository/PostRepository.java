@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository{
-    void save(Post post);
+    Post save(Post post);
     List<Post> findAll();
     void deleteById(Long id);
     void incrementLikes(Long postId);
-    Optional getLikesCount(Long postId);
+    Optional<Integer> getLikesCount(Long postId);
+    List<Post> findByTag(String tag);
 }
