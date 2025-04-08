@@ -13,6 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,5 +78,41 @@ class JdbcNativePostRepositoryTest {
         List<Post> posts = postRepository.findAll();
 
         assertEquals(1, posts.size());
+    }
+    @Test
+    void incrementLikes_shouldIncreaseLikesCount() {
+        Long postId = 1L;
+        Optional<Integer> initialLikes = postRepository.getLikesCount(postId);
+        assertTrue(initialLikes.isPresent());
+        int initialCount = initialLikes.get();
+        postRepository.incrementLikes(postId);
+        Optional<Integer> updatedLikes = postRepository.getLikesCount(postId);
+        assertTrue(updatedLikes.isPresent());
+        assertEquals(initialCount + 1, updatedLikes.get().intValue());
+    }
+
+    @Test
+    void getLikesCount_shouldReturnCorrectCount() {
+        // Arrange
+        Long postId = 1L;
+
+        // Act
+        Optional<Integer> likes = postRepository.getLikesCount(postId);
+
+        // Assert
+        assertTrue(likes.isPresent());
+        assertEquals(0, likes.get().intValue()); // По умолчанию 0 в тестовых данных
+    }
+
+    @Test
+    void getLikesCount_shouldReturnEmptyForNonExistingPost() {
+        // Arrange
+        Long nonExistingId = 999L;
+
+        // Act
+        Optional<Integer> likes = postRepository.getLikesCount(nonExistingId);
+
+        // Assert
+        assertTrue(likes.isEmpty());
     }
 }
