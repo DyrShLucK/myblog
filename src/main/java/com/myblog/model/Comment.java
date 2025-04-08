@@ -6,14 +6,25 @@ import java.time.LocalDateTime;
 
 @Table("comment")
 public class Comment {
-    @Id
     private Long id;
     private String text;
     private LocalDateTime createdAt;
     private Long postId; // Внешний ключ
 
     // Конструкторы, геттеры и сеттеры
+    public Comment(Long id, String text, LocalDateTime createdAt, Long postId) {
+        this.id = id;
+        this.text = text;
+        this.createdAt = createdAt;
+        this.postId = postId;
+    }
 
+    // Конструктор для нового комментария (без id и createdAt)
+    public Comment(String text, Long postId) {
+        this.text = text;
+        this.postId = postId;
+        this.createdAt = LocalDateTime.now();
+    }
     public Long getId() {
         return id;
     }
@@ -33,16 +44,7 @@ public class Comment {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Long getPostId() {
         return postId;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
     }
 }
