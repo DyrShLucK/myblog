@@ -1,9 +1,6 @@
 package com.myblog.repository;
 import com.myblog.configuration.DatabaseConfiguration;
 import com.myblog.model.Post;
-import org.junit.Before;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +49,14 @@ class JdbcNativePostRepositoryTest {
                 "тестирование"
         );
 
-        postRepository.save(newPost);
+        Post SavedPost = postRepository.save(newPost);
 
         List<Post> posts = postRepository.findAll();
         Post savedPost = posts.stream()
                 .filter(p -> "Новый пост".equals(p.getTitle()))
                 .findFirst()
                 .orElse(null);
-
+        System.out.println(SavedPost.toString());
         assertNotNull(savedPost);
         assertNotNull(savedPost.getId());
         assertEquals("тестирование", savedPost.getTags());

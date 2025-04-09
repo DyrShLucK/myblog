@@ -8,6 +8,7 @@ import com.myblog.model.Post;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,8 @@ public class JdbcNativePostRepository implements PostRepository {
 
         Number generatedId = (Number) keyHolder.getKeys().get("id");
         post.setId(generatedId.longValue());
+        Timestamp generatedTime = (Timestamp) keyHolder.getKeys().get("created_at");
+        post.setCreated_at(generatedTime.toLocalDateTime());
         return post;
     }
 
@@ -50,7 +53,8 @@ public class JdbcNativePostRepository implements PostRepository {
                         rs.getString("image"),
                         rs.getString("text"),
                         rs.getString("tags"),
-                        rs.getInt("likes_count")
+                        rs.getInt("likes_count"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
                 )
         );
     }
@@ -92,7 +96,8 @@ public class JdbcNativePostRepository implements PostRepository {
                         rs.getString("image"),
                         rs.getString("text"),
                         rs.getString("tags"),
-                        rs.getInt("likes_count")
+                        rs.getInt("likes_count"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
                 ));
     }
 }

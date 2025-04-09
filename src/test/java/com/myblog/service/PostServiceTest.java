@@ -5,82 +5,122 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.myblog.model.Post;
 import com.myblog.repository.PostRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-class PostServiceTest {
+public class PostServiceTest {
 
     @Mock
     private PostRepository postRepository;
 
     @InjectMocks
-    private PostService postService;
-
-    private Post post;
-
-    @BeforeEach
-    void setUp() {
-        post = new Post("Test Post", "img.jpg", "Content", "testTag" );
-    }
-
+    private PostService postService; // Это реальный сервис с мокнутым репозиторием
 
     @Test
-    void testCreatePost_GeneratesId() {
+    void testCreatePost() {
+        // Arrange
+        Post post = new Post("New Title", "image.jpg", "Content", "java");
+        Post savedPost = new Post(1L, "New Title", "image.jpg", "Content", "java", 0, LocalDateTime.now());
 
-        when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
-            Post savedPost = invocation.getArgument(0);
-            savedPost.setId(1L);
-            return savedPost;
-        });
+        when(postRepository.save(post)).thenReturn(savedPost);
 
-        Post createdPost = postService.createPost(new Post("Test Post2", "img2.jpg", "Content2", "testTag2" ));
+        // Act
+        Post result = postService.createPost(post);
 
-        assertNotNull(createdPost.getId());
-        assertEquals(1L, createdPost.getId());
-        verify(postRepository).save(any(Post.class));
+        // Assert
+        assertNotNull(result);
+        assertEquals("New Title", result.getTitle());
+        verify(postRepository).save(post); // Автоматически проверяет 1 вызов
     }
 
     @Test
-    void testDeletePost_CallsRepository() {
+    void testDeletePost() {
+        // Act
         postService.deletePost(1L);
+
+        // Assert
         verify(postRepository).deleteById(1L);
     }
 
     @Test
-    void testGetAllPosts_ReturnsRepoResult() {
-        List<Post> mockPosts = List.of(post);
+    void testGetAllPosts() {
+        // Arrange
+        List<Post> mockPosts = Arrays.asList(
+                new Post(1L, "Post1", "img1", "Text1", "java", 5, LocalDateTime.now()),
+                new Post(2L, "Post2", "img2", "Text2", "spring", 3, LocalDateTime.now())
+        );
+
         when(postRepository.findAll()).thenReturn(mockPosts);
 
+        // Act
         List<Post> result = postService.getAllPosts();
 
-        assertEquals(mockPosts, result);
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("Post1", result.get(0).getTitle());
         verify(postRepository).findAll();
     }
 
     @Test
-    void testIncrementLikes_CallsRepository() {
+    void testGetPostsByTag() {
+        // Arrange
+        List<Post> mockPosts = Arrays.asList(
+                new Post(1L, "Spring Post", "img", "Content", "spring,java", 10, LocalDateTime.now())
+        );
+
+        when(postRepository.findByTag("spring")).thenReturn(mockPosts);
+
+        // Act
+        List<Post> result = postService.getPostsByTag("spring");
+
+        // Assert
+        assertFalse(result.isEmpty());
+        assertEquals("Spring Post", result.get(0).getTitle());
+        verify(postRepository).findByTag("spring");
+    }
+
+    @Test
+    void testIncrementPostLikes() {
+        // Act
         postService.incrementPostLikes(1L);
+
+        // Assert
         verify(postRepository).incrementLikes(1L);
     }
 
     @Test
-    void testGetLikesCount_ReturnsRepoResult() {
-        when(postRepository.getLikesCount(1L)).thenReturn(Optional.of(5));
+    void testGetLikesCount() {
+        // Arrange
+        when(postRepository.getLikesCount(1L)).thenReturn(Optional.of(42));
+
+        // Act
+        Optional<Integer> likes = postService.getLikesCount(1L);
+
+        // Assert
+        assertTrue(likes.isPresent());
+        assertEquals(42, likes.get());
+        verify(postRepository).getLikesCount(1L);
+    }
+
+    @Test
+    void testGetLikesCountNotFound() {
+        // Arrange
         when(postRepository.getLikesCount(999L)).thenReturn(Optional.empty());
 
-        assertEquals(Optional.of(5), postService.getLikesCount(1L));
-        assertEquals(Optional.empty(), postService.getLikesCount(999L));
+        // Act
+        Optional<Integer> likes = postService.getLikesCount(999L);
 
-        verify(postRepository).getLikesCount(1L);
+        // Assert
+        assertTrue(likes.isEmpty());
         verify(postRepository).getLikesCount(999L);
     }
 }
