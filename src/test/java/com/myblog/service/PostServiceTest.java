@@ -23,7 +23,7 @@ public class PostServiceTest {
     private PostRepository postRepository;
 
     @InjectMocks
-    private PostService postService; // Это реальный сервис с мокнутым репозиторием
+    private PostService postService;
 
     @Test
     void testCreatePost() {
@@ -39,7 +39,7 @@ public class PostServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals("New Title", result.getTitle());
-        verify(postRepository).save(post); // Автоматически проверяет 1 вызов
+        verify(postRepository).save(post);
     }
 
     @Test
@@ -55,8 +55,8 @@ public class PostServiceTest {
     void testGetAllPosts() {
         // Arrange
         List<Post> mockPosts = Arrays.asList(
-                new Post(1L, "Post1", "img1", "Text1", "java", 5, LocalDateTime.now()),
-                new Post(2L, "Post2", "img2", "Text2", "spring", 3, LocalDateTime.now())
+                new Post(1L, "Post1", "img1.jpg", "Text1", "java", 5, LocalDateTime.now()),
+                new Post(2L, "Post2", "img2.jpg", "Text2", "spring", 3, LocalDateTime.now())
         );
 
         when(postRepository.findAll()).thenReturn(mockPosts);
@@ -74,7 +74,7 @@ public class PostServiceTest {
     void testGetPostsByTag() {
         // Arrange
         List<Post> mockPosts = Arrays.asList(
-                new Post(1L, "Spring Post", "img", "Content", "spring,java", 10, LocalDateTime.now())
+                new Post(1L, "Spring Post", "img.jpg", "Content", "spring,java", 10, LocalDateTime.now())
         );
 
         when(postRepository.findByTag("spring")).thenReturn(mockPosts);
