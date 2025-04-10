@@ -12,4 +12,5 @@ public interface PostRepository{
     void incrementLikes(Long postId);
     Optional<Integer> getLikesCount(Long postId);
     List<Post> findByTag(String tag);
+    Optional<Post> findById(Long id);
 }

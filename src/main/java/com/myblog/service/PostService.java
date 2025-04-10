@@ -37,4 +37,7 @@ public class PostService {
     public Optional<Integer> getLikesCount(Long postId) {
         return postRepository.getLikesCount(postId);
     }
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id); // Предполагается, что в репозитории есть метод findById
+    }
 }

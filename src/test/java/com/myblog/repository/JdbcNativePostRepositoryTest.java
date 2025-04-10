@@ -112,4 +112,11 @@ class JdbcNativePostRepositoryTest {
         // Assert
         assertTrue(likes.isEmpty());
     }
+    @Test
+    void getPostById_shouldReturnPost(){
+        Optional<Post> post = postRepository.findById(1L);
+        assertTrue(post.isPresent());
+        Post GetedPost = post.get();
+        assertEquals("Заголовок 1", GetedPost.getTitle());
+    }
 }

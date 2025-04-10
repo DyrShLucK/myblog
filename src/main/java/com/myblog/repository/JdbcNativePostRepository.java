@@ -100,4 +100,23 @@ public class JdbcNativePostRepository implements PostRepository {
                         rs.getTimestamp("created_at").toLocalDateTime()
                 ));
     }
+    @Override
+    public Optional<Post> findById(Long id) {
+        String sql = "SELECT * FROM post WHERE id = ?";
+        try {
+            Post post = jdbcTemplate.queryForObject(sql, new Object[]{id},
+                    (rs, rowNum) -> new Post(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            rs.getString("image"),
+                            rs.getString("text"),
+                            rs.getString("tags"),
+                            rs.getInt("likes_count"),
+                            rs.getTimestamp("created_at").toLocalDateTime()
+                    ));
+            return Optional.ofNullable(post);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }
