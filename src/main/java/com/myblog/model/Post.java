@@ -37,8 +37,6 @@ public class Post {
         this.likesCount = 0;
     }
 
-
-
     public Long getId() {
         return id;
     }
@@ -46,6 +44,7 @@ public class Post {
     public int getLikesCount() {
         return likesCount;
     }
+
     public void setLikesCount(int likesCount) {
         this.likesCount = likesCount;
     }
@@ -94,6 +93,8 @@ public class Post {
         this.created_at = created_at;
     }
 
+
+
     @Override
     public String toString() {
         return "Post{" +
@@ -106,4 +107,5 @@ public class Post {
                 ", created_at=" + created_at +
                 '}';
     }
+
 }
