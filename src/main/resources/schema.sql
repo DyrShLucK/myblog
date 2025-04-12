@@ -13,5 +13,5 @@ CREATE TABLE comment (
     text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     post_id BIGINT,
-    FOREIGN KEY (post_id) REFERENCES post(id)
+    FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE
 );

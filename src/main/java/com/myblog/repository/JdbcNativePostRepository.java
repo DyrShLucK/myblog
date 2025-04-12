@@ -119,4 +119,11 @@ public class JdbcNativePostRepository implements PostRepository {
             return Optional.empty();
         }
     }
+    @Override
+    public void decrementLikes(Long post_Id){
+        jdbcTemplate.update(
+                "UPDATE post SET likes_count = likes_count - 1 WHERE id = ?",
+                post_Id
+        );
+    }
 }

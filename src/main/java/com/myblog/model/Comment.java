@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 public class Comment {
     private Long id;
     private String text;
-    private LocalDateTime createdAt;
+    private LocalDateTime created_at;
     private Long postId; // Внешний ключ
 
     // Конструкторы, геттеры и сеттеры
     public Comment(Long id, String text, LocalDateTime createdAt, Long postId) {
         this.id = id;
         this.text = text;
-        this.createdAt = createdAt;
+        this.created_at = createdAt;
         this.postId = postId;
     }
 
@@ -23,7 +23,7 @@ public class Comment {
     public Comment(String text, Long postId) {
         this.text = text;
         this.postId = postId;
-        this.createdAt = LocalDateTime.now();
+        this.created_at = LocalDateTime.now();
     }
     public Long getId() {
         return id;
@@ -42,7 +42,7 @@ public class Comment {
     }
 
     public LocalDateTime getCreatedAt() {
-        return createdAt;
+        return created_at;
     }
     public Long getPostId() {
         return postId;

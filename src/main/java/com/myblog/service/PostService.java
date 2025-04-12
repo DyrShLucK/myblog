@@ -33,6 +33,9 @@ public class PostService {
     public void incrementPostLikes(Long postId) {
         postRepository.incrementLikes(postId);
     }
+    public void decrementLikes(Long postId){
+        postRepository.decrementLikes(postId);
+    }
 
     public Optional<Integer> getLikesCount(Long postId) {
         return postRepository.getLikesCount(postId);

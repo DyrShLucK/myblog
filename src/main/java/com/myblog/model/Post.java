@@ -37,6 +37,8 @@ public class Post {
         this.likesCount = 0;
     }
 
+    public Post(){};
+
     public Long getId() {
         return id;
     }

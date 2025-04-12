@@ -10,6 +10,7 @@ public interface PostRepository{
     List<Post> findAll();
     void deleteById(Long id);
     void incrementLikes(Long postId);
+    void decrementLikes(Long postId);
     Optional<Integer> getLikesCount(Long postId);
     List<Post> findByTag(String tag);
     Optional<Post> findById(Long id);
