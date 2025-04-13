@@ -110,7 +110,6 @@ class JdbcNativeCommentRepositoryTest {
         Comment newComment = new Comment("Test comment", 1L);
         Comment savedComment = commentRepository.save(newComment);
 
-        // Проверяем через БД
         LocalDateTime dbCreatedAt = jdbcTemplate.queryForObject(
                 "SELECT created_at FROM comment WHERE id = ?",
                 LocalDateTime.class,
@@ -118,5 +117,12 @@ class JdbcNativeCommentRepositoryTest {
         );
         assertNotNull(dbCreatedAt);
         assertTrue(dbCreatedAt.isBefore(LocalDateTime.now().plusSeconds(1)));
+    }
+    @Test
+    void updateComment_ShouldUpdateCommentInDB(){
+        Comment comment = new Comment("Text", 1L);
+        comment = commentRepository.save(comment);
+        comment.setText("New Text");
+        commentRepository.updateComment(comment);
     }
 }

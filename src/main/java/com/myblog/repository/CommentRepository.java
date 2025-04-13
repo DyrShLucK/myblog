@@ -12,5 +12,5 @@ public interface CommentRepository{
     List<Comment> findAllByPostId(Long post_id);
     void deleteById(Long id);
     Optional<Comment> findById(Long id);
-    void updateCommentText(Long id, String text);
+    void updateComment(Comment comment);
 }

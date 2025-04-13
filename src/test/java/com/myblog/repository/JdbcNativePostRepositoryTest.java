@@ -26,9 +26,10 @@ class JdbcNativePostRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        jdbcTemplate.execute("DELETE FROM comment");
         jdbcTemplate.execute("DELETE FROM post");
         jdbcTemplate.execute("ALTER TABLE post ALTER COLUMN id RESTART WITH 1"); // Для H2
-        jdbcTemplate.execute("DELETE FROM comment"); // Если есть зависимые таблицы
+
 
         jdbcTemplate.update(
                 "INSERT INTO post (title, image, text, tags) VALUES (?, ?, ?, ?)",
@@ -37,6 +38,10 @@ class JdbcNativePostRepositoryTest {
         jdbcTemplate.update(
                 "INSERT INTO post (title, image, text, tags) VALUES (?, ?, ?, ?)",
                 "Заголовок 2", "image2.jpg", "Текст поста 2", "технологии"
+        );
+        jdbcTemplate.update(
+                "INSERT INTO post (title, image, text, tags) VALUES (?, ?, ?, ?)",
+                "Заголовок 3", "image3.jpg", "Текст поста 3", "новости"
         );
     }
 
@@ -66,7 +71,7 @@ class JdbcNativePostRepositoryTest {
     void findAll_shouldReturnAllPosts() {
         List<Post> posts = postRepository.findAll();
         assertNotNull(posts);
-        assertEquals(2, posts.size());
+        assertEquals(3, posts.size());
     }
 
     @Test
@@ -74,7 +79,7 @@ class JdbcNativePostRepositoryTest {
         postRepository.deleteById(1L);
         List<Post> posts = postRepository.findAll();
 
-        assertEquals(1, posts.size());
+        assertEquals(2, posts.size());
     }
     @Test
     void incrementLikes_shouldIncreaseLikesCount() {
@@ -118,5 +123,20 @@ class JdbcNativePostRepositoryTest {
         assertTrue(post.isPresent());
         Post GetedPost = post.get();
         assertEquals("Заголовок 1", GetedPost.getTitle());
+    }
+    @Test
+    void findByTag_ShouldReturnPostList(){
+        List<Post> posts = postRepository.findByTag("новости");
+        assertNotNull(posts);
+        assertEquals(2, posts.size());
+        assertEquals("Текст поста 1", posts.get(0).getText());
+        assertEquals("Текст поста 3", posts.get(1).getText());
+    }
+    @Test
+    void UpdatePost_shouldUpdatePost(){
+        Post post = postRepository.findById(1L).get();
+        post.setText("New Text about...");
+        postRepository.UpdatePost(post);
+        assertEquals("New Text about...", postRepository.findById(1L).get().getText());
     }
 }

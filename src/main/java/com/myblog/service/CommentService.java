@@ -29,7 +29,7 @@ public class CommentService {
     public Optional<Comment> getById(Long id){
         return commentRepository.findById(id);
     }
-    public void updateCommentText(Long id, String text){
-        commentRepository.updateCommentText(id, text);
+    public void updateComment(Comment comment){
+        commentRepository.updateComment(comment);
     }
 }

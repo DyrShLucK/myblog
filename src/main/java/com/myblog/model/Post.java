@@ -6,6 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Table("post")
@@ -95,7 +96,16 @@ public class Post {
         this.created_at = created_at;
     }
 
-
+    public String getPreviewText() {
+        if (text == null || text.isEmpty()) return "";
+        String[] lines = text.split("\n", -1);
+        int maxLines = 3;
+        if (lines.length <= maxLines) {
+            return String.join("\n", lines);
+        } else {
+            return String.join("\n", Arrays.copyOfRange(lines, 0, maxLines)) + "...";
+        }
+    }
 
     @Override
     public String toString() {

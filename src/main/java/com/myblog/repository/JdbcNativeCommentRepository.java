@@ -76,10 +76,10 @@ public class JdbcNativeCommentRepository implements CommentRepository{
         }
     }
     @Override
-    public void updateCommentText(Long id, String text){
+    public void updateComment(Comment comment){
         jdbcTemplate.update(
                 "UPDATE comment SET text = ? WHERE id = ?",
-                text, id
+                comment.getText(), comment.getPostId()
         );
     }
 

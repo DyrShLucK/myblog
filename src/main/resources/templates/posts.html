@@ -49,7 +49,7 @@
                 </p>
 
                 <!-- Текст поста -->
-                <p th:text="${post.text}"></p>
+                <p th:text="${post.previewText}"></p>
 
                 <!-- Лайки -->
                 <p>
@@ -59,7 +59,7 @@
 
                 <!-- Теги -->
                 <p>
-                    <span th:text="${post.tags.replace(',', ' #')}">#</span>
+                    <span th:text="${'#' + post.tags.replace(', ', ' #')}"></span>
                 </p>
             </td>
         </tr>

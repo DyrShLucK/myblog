@@ -11,6 +11,7 @@
             newComment.rows = 3;
             newComment.name = "text";
             newComment.style = "width:100%;";
+            newComment.required = true;
             comment.parentNode.replaceChild(newComment, comment);
 
             var button = document.getElementById(id);
@@ -32,6 +33,7 @@
             newComment.rows = 3;
             newComment.name = "text";
             newComment.style = "width:100%;";
+            newComment.required = true;
             form.appendChild(newComment);
 
             var newButton = document.createElement("button");
@@ -74,7 +76,7 @@
                     </form>
                 </p>
                 <p>
-                    <span th:text="${post.tags.replace(',', ' #')}"></span>
+                    <span th:text="${'#' + post.tags.replace(', ', ' #')}"></span>
                 </p>
             </td>
         </tr>

@@ -14,25 +14,25 @@
         <tr>
             <td>
                 <h3>Название</h3>
-                <textarea rows="2" style="width: 100%;" name="title" th:text="${post==null ? '' : post.getTitle()}"></textarea>
+                <textarea rows="2" style="width: 100%;" name="title" th:text="${post==null ? '' : post.getTitle()}" required></textarea>
             </td>
         </tr>
         <tr>
             <td>
                 <h3>Изображение</h3>
-                <input type="file" name="image">
+                <input type="file" name="image" th:required="${post == null ? 'true' : 'false'}">
             </td>
         </tr>
         <tr>
             <td>
                 <h3>Теги</h3>
-                <textarea rows="2" style="width: 100%;" name="tags" th:text="${post==null ? '' : post.tags}"></textarea>
+                <textarea rows="2" style="width: 100%;" name="tags" th:text="${post==null ? '' : post.tags}" required></textarea>
             </td>
         </tr>
         <tr>
             <td>
                 <h3>Текст</h3>
-                <textarea rows="30" style="width: 100%;" name="text" th:text="${post==null ? '' : post.getText()}"></textarea>
+                <textarea rows="30" style="width: 100%;" name="text" th:text="${post==null ? '' : post.getText()}" required></textarea>
             </td>
         </tr>
         <tr>

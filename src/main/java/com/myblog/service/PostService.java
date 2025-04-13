@@ -46,4 +46,5 @@ public class PostService {
     public void  updatePost(Post post){
         postRepository.UpdatePost(post);
     }
+
 }
