@@ -19,6 +19,7 @@ public class DatabaseConfiguration {
                 .setType(EmbeddedDatabaseType.H2)
                 .setName("usersdb")
                 .addScript("schema.sql")
+                .addScript("data.sql")
                 .build();
     }
 

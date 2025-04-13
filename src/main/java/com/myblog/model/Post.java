@@ -6,6 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Table("post")
@@ -37,7 +38,7 @@ public class Post {
         this.likesCount = 0;
     }
 
-
+    public Post(){};
 
     public Long getId() {
         return id;
@@ -46,6 +47,7 @@ public class Post {
     public int getLikesCount() {
         return likesCount;
     }
+
     public void setLikesCount(int likesCount) {
         this.likesCount = likesCount;
     }
@@ -94,6 +96,17 @@ public class Post {
         this.created_at = created_at;
     }
 
+    public String getPreviewText() {
+        if (text == null || text.isEmpty()) return "";
+        String[] lines = text.split("\n", -1);
+        int maxLines = 3;
+        if (lines.length <= maxLines) {
+            return String.join("\n", lines);
+        } else {
+            return String.join("\n", Arrays.copyOfRange(lines, 0, maxLines)) + "...";
+        }
+    }
+
     @Override
     public String toString() {
         return "Post{" +
@@ -106,4 +119,5 @@ public class Post {
                 ", created_at=" + created_at +
                 '}';
     }
+
 }

@@ -94,12 +94,6 @@
       <version>3.24.2</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -129,6 +123,18 @@
             --add-opens java.base/java.util=ALL-UNNAMED
             -Dnet.bytebuddy.experimental=true
           </argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>21</source> <!-- или другая версия Java -->
+          <target>21</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
     </plugins>
