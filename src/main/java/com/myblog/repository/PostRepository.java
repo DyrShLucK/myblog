@@ -14,4 +14,5 @@ public interface PostRepository{
     Optional<Integer> getLikesCount(Long postId);
     List<Post> findByTag(String tag);
     Optional<Post> findById(Long id);
+    void UpdatePost(Post post);
 }

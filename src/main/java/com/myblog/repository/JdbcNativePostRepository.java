@@ -126,4 +126,11 @@ public class JdbcNativePostRepository implements PostRepository {
                 post_Id
         );
     }
+    @Override
+    public void UpdatePost(Post post) {
+        jdbcTemplate.update(
+                "UPDATE post SET title = ?, text = ?, tags = ?, image = ? WHERE id = ?",
+                post.getTitle(), post.getText(), post.getTags(), post.getImage(), post.getId()
+        );
+    }
 }

@@ -43,4 +43,7 @@ public class PostService {
     public Optional<Post> getPostById(Long id) {
         return postRepository.findById(id);
     }
+    public void  updatePost(Post post){
+        postRepository.UpdatePost(post);
+    }
 }

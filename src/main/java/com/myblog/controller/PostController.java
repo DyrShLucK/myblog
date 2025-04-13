@@ -7,8 +7,14 @@ import com.myblog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.*;
 
@@ -61,6 +67,33 @@ public class PostController {
         model.addAttribute("comments", commentsMap);
         return "posts";
     }
+    @PostMapping("/posts")
+    public String addPost(@RequestParam("title") String title,
+                          @RequestParam("text") String text,
+                          @RequestParam("tags") String tags,
+                          @RequestPart("image")MultipartFile image){
+        String imageUrl = "";
+        Post post = new Post(title,imageUrl,text,tags);
+        post = postService.createPost(post);
+        Long postId = post.getId();
+        if (!image.isEmpty()) {
+            try {
+                String fileName = "post_" + postId;
+                Path uploadPath = Paths.get("uploads/images");
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                image.transferTo(filePath);
+                imageUrl = "images/" + fileName;
+            } catch (IOException e) {
+                throw new RuntimeException("Ошибка при загрузке изображения", e);
+            }
+        }
+        post.setImage(imageUrl);
+        postService.updatePost(post);
+        return "redirect:/posts";
+    }
 
     // Вспомогательный record для фильтров
     private record PagingInfo(int pageNumber, int pageSize, int totalPages) {
@@ -72,8 +105,7 @@ public class PostController {
             return pageNumber > 1;
         }
     }
-    //Добавление поста TODO
-    @GetMapping("/posts/add-post")
+    @GetMapping("/posts/add")
     public String showAddForm(Model model) {
         System.out.println("Метод showAddForm вызван!"); // Для теста
         return "add-post";
@@ -138,7 +170,39 @@ public class PostController {
     }
 
     @GetMapping("posts/{postId}/edit")
-    public String EditPost(@PathVariable Long postId){
-        return "redirect:/add-post/" + postId;
+    public String EditPost(@PathVariable Long postId,
+                           Model model){
+        model.addAttribute("post", postService.getPostById(postId).get());
+        return "add-post";
+    }
+    @PostMapping("posts/{postId}")
+    public  String updatePost(@PathVariable Long postId,
+                              @RequestParam("title") String title,
+                              @RequestParam("text") String text,
+                              @RequestParam("tags") String tags,
+                              @RequestPart("image")MultipartFile image){
+        Post post = postService.getPostById(postId).get();
+        String imageUrl = post.getImage();
+        if (!image.isEmpty()) {
+            try {
+                String fileName = "post_" + postId;
+                Path uploadPath = Paths.get("uploads/images");
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                image.transferTo(filePath);
+                imageUrl = "images/" + fileName;
+            } catch (IOException e) {
+                throw new RuntimeException("Ошибка при загрузке изображения", e);
+            }
+        }
+        // Передаем URL в сервис (если изображение не загружено - null)
+        post.setText(text);
+        post.setImage(imageUrl);
+        post.setTags(tags);
+        post.setTitle(title);
+        postService.updatePost(post);
+        return "redirect:/posts/" + postId;
     }
 }
