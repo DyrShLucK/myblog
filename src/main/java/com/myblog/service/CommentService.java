@@ -3,6 +3,7 @@ package com.myblog.service;
 import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.CommentRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class CommentService {
     public Comment createComment(Comment comment){
         return commentRepository.save(comment);
     }
+    @Cacheable(value = "comments", key = "#postId")
     public List<Comment> getAllCommentByPostId(Long post_id){
         return commentRepository.findAllByPostId(post_id);
     }
