@@ -1,13 +1,20 @@
 package com.myblog.service;
 
+import com.myblog.DTO.PostPageResponse;
+import com.myblog.controller.PostViewController;
+import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,7 +40,28 @@ public class PostService {
         postRepository.deleteById(postId);
     }
     @Cacheable("all_posts")
-    public List<Post> getAllPosts() {
+    public PostPageResponse getAllPostsWithPaginationAndTag(int pageSize, int pageNumber, String searchTag) {
+        List<Post> posts;
+        int totalPosts;
+        if (searchTag.isEmpty()) {
+            posts = postRepository.findAllWithPagnation(pageSize, pageNumber);
+            totalPosts = postRepository.getTotalPostsCount();
+        } else {
+            posts = postRepository.findAllWithPagnationAndTag(pageSize, pageNumber, searchTag);
+            totalPosts = postRepository.getTotalPostsCountByTag(searchTag);
+        }
+
+        int totalPages = (int) Math.ceil((double) totalPosts / pageSize);
+        PostPageResponse.PagingInfo paging = new PostPageResponse.PagingInfo(
+                pageNumber,
+                pageSize,
+                totalPages
+        );
+
+
+        return new PostPageResponse(posts, paging);
+    }
+    public List<Post> getAllPosts(){
         return postRepository.findAll();
     }
 
