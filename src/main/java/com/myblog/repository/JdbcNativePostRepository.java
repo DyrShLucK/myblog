@@ -45,7 +45,7 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public List<Post> findAllWithPagnationAndTag(int pageSize, int pageNumber, String tag) {
-        String query = "SELECT * FROM post WHERE tags LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ? ";
+        String query = "SELECT * FROM post WHERE tags LIKE ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ? ";
         return jdbcTemplate.query(
                 query,
                 new Object[]{"%" + tag + "%", pageSize, (pageNumber - 1) * pageSize},
@@ -62,7 +62,7 @@ public class JdbcNativePostRepository implements PostRepository {
     }
     @Override
     public List<Post> findAllWithPagnation(int pageSize, int pageNumber) {
-        String query = "SELECT * FROM post ORDER BY created_at DESC LIMIT ? OFFSET ? ";
+        String query = "SELECT * FROM post ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ? ";
         return jdbcTemplate.query(
                 query,
                 new Object[]{pageSize, (pageNumber - 1) * pageSize},
@@ -90,7 +90,7 @@ public class JdbcNativePostRepository implements PostRepository {
     }
     @Override
     public List<Post> findAll(){
-        String query = "SELECT * FROM post ORDER BY created_at DESC";
+        String query = "SELECT * FROM post ORDER BY created_at DESC, id DESC";
         return jdbcTemplate.query(
                 query,
                        (rs, rowNum) -> new Post(

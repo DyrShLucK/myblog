@@ -57,8 +57,6 @@ public class PostService {
                 pageSize,
                 totalPages
         );
-
-
         return new PostPageResponse(posts, paging);
     }
     public List<Post> getAllPosts(){
