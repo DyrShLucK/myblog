@@ -28,7 +28,9 @@ class JdbcNativePostRepositoryTest {
     void setUp() {
         jdbcTemplate.execute("DELETE FROM comment");
         jdbcTemplate.execute("DELETE FROM post");
-        jdbcTemplate.execute("ALTER TABLE post ALTER COLUMN id RESTART WITH 1"); // Для H2
+        jdbcTemplate.execute("ALTER TABLE post ALTER COLUMN id RESTART WITH 1");
+        jdbcTemplate.execute("ALTER TABLE comment ALTER COLUMN id RESTART WITH 1");
+
 
 
         jdbcTemplate.update(
@@ -61,7 +63,6 @@ class JdbcNativePostRepositoryTest {
                 .filter(p -> "Новый пост".equals(p.getTitle()))
                 .findFirst()
                 .orElse(null);
-        System.out.println(SavedPost.toString());
         assertNotNull(savedPost);
         assertNotNull(savedPost.getId());
         assertEquals("тестирование", savedPost.getTags());
@@ -138,5 +139,37 @@ class JdbcNativePostRepositoryTest {
         post.setText("New Text about...");
         postRepository.UpdatePost(post);
         assertEquals("New Text about...", postRepository.findById(1L).get().getText());
+    }
+    @Test
+    void testFindAllWithPagination() {
+        // Act
+        List<Post> postsPage1 = postRepository.findAllWithPagnation(2, 1);
+        List<Post> postsPage2 = postRepository.findAllWithPagnation(2, 2);
+
+        // Assert
+        assertEquals(2, postsPage1.size());
+        assertEquals("Заголовок 3", postsPage1.get(0).getTitle());
+        assertEquals("Заголовок 2", postsPage1.get(1).getTitle());
+
+        assertEquals(1, postsPage2.size());
+        assertEquals("Заголовок 1", postsPage2.get(0).getTitle());
+    }
+
+    @Test
+    void testFindAllWithPaginationAndTag() {
+        // Act
+        List<Post> newsPostsPage1 = postRepository.findAllWithPagnationAndTag(1, 1, "новости");
+        List<Post> newsPostsPage2 = postRepository.findAllWithPagnationAndTag(1, 2, "новости");
+        List<Post> techPosts = postRepository.findAllWithPagnationAndTag(10, 1, "технологии");
+
+        // Assert
+        assertEquals(1, newsPostsPage1.size());
+        assertEquals("Заголовок 3", newsPostsPage1.get(0).getTitle());
+
+        assertEquals(1, newsPostsPage2.size());
+        assertEquals("Заголовок 1", newsPostsPage2.get(0).getTitle());
+
+        assertEquals(1, techPosts.size());
+        assertEquals("Заголовок 2", techPosts.get(0).getTitle());
     }
 }

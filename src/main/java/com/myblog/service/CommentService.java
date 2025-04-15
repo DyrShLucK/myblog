@@ -6,7 +6,9 @@ import com.myblog.repository.CommentRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,5 +35,13 @@ public class CommentService {
     }
     public void updateComment(Comment comment){
         commentRepository.updateComment(comment);
+    }
+    public Map<Long, List<Comment>> countCommentsByPosts(List<Post> posts){
+        Map<Long, List<Comment>> commentsMap = new HashMap<>();
+        for (Post post : posts) {
+            List<Comment> comments = commentRepository.findAllByPostId(post.getId());
+            commentsMap.put(post.getId(), comments);
+        }
+        return commentsMap;
     }
 }
