@@ -82,5 +82,4 @@ public class JdbcNativeCommentRepository implements CommentRepository{
                 comment.getText(), comment.getPostId()
         );
     }
-
 }

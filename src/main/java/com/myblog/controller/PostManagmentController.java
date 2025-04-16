@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
+@RequestMapping("myblog/")
 public class PostManagmentController {
     @Autowired
     public ImageStorageService imageStorageService;
@@ -33,7 +34,7 @@ public class PostManagmentController {
         imageUrl = imageStorageService.savePostImage(post.getId(), image);
         post.setImage(imageUrl);
         postService.updatePost(post);
-        return "redirect:/posts";
+        return "redirect:/myblog/posts";
     }
 
     //Лайк/Дизлайк
@@ -46,14 +47,14 @@ public class PostManagmentController {
             postService.decrementLikes(postId);
         }
 
-        return "redirect:/posts/" +postId;
+        return "redirect:/myblog/posts/" +postId;
     }
 
     //Удаление поста
     @PostMapping("posts/{postId}/delete")
     public String DeletePost(@PathVariable Long postId){
         postService.deletePost(postId);
-        return "redirect:/posts";
+        return "redirect:/myblog/posts";
     }
 
     //редактирование поста
@@ -79,6 +80,6 @@ public class PostManagmentController {
         post.setTags(tags);
         post.setImage(imageUrl);
         postService.updatePost(post);
-        return "redirect:/posts/" + postId;
+        return "redirect:/myblog/posts/" + postId;
     }
 }

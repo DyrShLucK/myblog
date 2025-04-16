@@ -1,21 +1,21 @@
 package com.myblog.repository;
 
-import com.myblog.configuration.DatabaseConfiguration;
 import com.myblog.model.Comment;
+import com.myblog.repository.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(classes = {DatabaseConfiguration.class, JdbcNativeCommentRepository.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
+@SpringBootTest
 class JdbcNativeCommentRepositoryTest {
 
     @Autowired

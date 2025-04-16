@@ -43,7 +43,7 @@ public class ImageStorageService {
             String fileName = "post_" + postId;
             Path filePath = uploadDir.resolve(fileName);
             newImage.transferTo(filePath);
-            return "images/" + fileName;
+            return "/images/" + fileName;
         } catch (IOException e) {
             throw new RuntimeException("Ошибка при загрузке изображения", e);
         }

@@ -1,5 +1,6 @@
 package com.myblog.controller;
 
+import com.myblog.controller.PostManagmentController;
 import com.myblog.model.Post;
 import com.myblog.service.ImageStorageService;
 import com.myblog.service.PostService;
@@ -10,13 +11,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.ui.Model;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 public class PostManagmentControllerTest {
 
     @Mock

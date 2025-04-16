@@ -44,9 +44,11 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> findAll() {
+    public List<Post> findAllWithPagnationAndTag(int pageSize, int pageNumber, String tag) {
+        String query = "SELECT * FROM post WHERE tags LIKE ? ORDER BY id DESC LIMIT ? OFFSET ? ";
         return jdbcTemplate.query(
-                "SELECT * FROM post",
+                query,
+                new Object[]{"%" + tag + "%", pageSize, (pageNumber - 1) * pageSize},
                 (rs, rowNum) -> new Post(
                         rs.getLong("id"),
                         rs.getString("title"),
@@ -58,6 +60,51 @@ public class JdbcNativePostRepository implements PostRepository {
                 )
         );
     }
+    @Override
+    public List<Post> findAllWithPagnation(int pageSize, int pageNumber) {
+        String query = "SELECT * FROM post ORDER BY id DESC LIMIT ? OFFSET ? ";
+        return jdbcTemplate.query(
+                query,
+                new Object[]{pageSize, (pageNumber - 1) * pageSize},
+                (rs, rowNum) -> new Post(
+                        rs.getLong("id"),
+                        rs.getString("title"),
+                        rs.getString("image"),
+                        rs.getString("text"),
+                        rs.getString("tags"),
+                        rs.getInt("likes_count"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                )
+        );
+    }
+    @Override
+    public int getTotalPostsCount() {
+        String query = "SELECT COUNT(*) FROM post";
+        return jdbcTemplate.queryForObject(query, Integer.class);
+    }
+    @Override
+    public int getTotalPostsCountByTag(String tag) {
+        String query = "SELECT COUNT(*) FROM post WHERE tags LIKE ?";
+        return jdbcTemplate.queryForObject(query,
+                new Object[]{"%" + tag + "%"}, Integer.class);
+    }
+    @Override
+    public List<Post> findAll(){
+        String query = "SELECT * FROM post ORDER BY id DESC";
+        return jdbcTemplate.query(
+                query,
+                       (rs, rowNum) -> new Post(
+                        rs.getLong("id"),
+                        rs.getString("title"),
+                        rs.getString("image"),
+                        rs.getString("text"),
+                        rs.getString("tags"),
+                        rs.getInt("likes_count"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                )
+        );
+    }
+
 
     @Override
     public void deleteById(Long id) {
