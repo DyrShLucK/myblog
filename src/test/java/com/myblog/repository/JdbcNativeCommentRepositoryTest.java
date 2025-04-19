@@ -5,17 +5,21 @@ import com.myblog.repository.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@JdbcTest
+@Import(JdbcNativeCommentRepository.class)
+@Transactional
+@Rollback
 class JdbcNativeCommentRepositoryTest {
 
     @Autowired
@@ -42,7 +46,7 @@ class JdbcNativeCommentRepositoryTest {
     void save_shouldAddCommentToDatabase() {
         Comment newComment = new Comment(
                 "Test comment",
-                1L // post_id = 1 (созданный в setUp)
+                1L
         );
 
         Comment savedComment = commentRepository.save(newComment);

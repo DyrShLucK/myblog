@@ -1,5 +1,6 @@
 package com.myblog.model;
 
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -8,9 +9,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Table("post")
 public class Post {
+    @Id
     private Long id;
     private String title;
     private String image;
@@ -119,5 +122,22 @@ public class Post {
                 ", created_at=" + created_at +
                 '}';
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return id.equals(post.id) &&
+                title.equals(post.title) &&
+                image.equals(post.image) &&
+                text.equals(post.text) &&
+                tags.equals(post.tags) &&
+                likesCount == post.likesCount &&
+                created_at.equals(post.created_at);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, image, text, tags, likesCount, created_at);
+    }
 }

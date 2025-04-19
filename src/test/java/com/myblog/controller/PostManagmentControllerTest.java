@@ -1,108 +1,124 @@
 package com.myblog.controller;
 
-import com.myblog.controller.PostManagmentController;
 import com.myblog.model.Post;
-import com.myblog.service.ImageStorageService;
-import com.myblog.service.PostService;
+import com.myblog.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.ui.Model;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-public class PostManagmentControllerTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-    @Mock
-    private PostService postService;
-    @Mock
-    private ImageStorageService imageStorageService;
-    @Mock
-    private Model model;
+@SpringBootTest
+@AutoConfigureMockMvc
+class PostManagmentControllerTest {
 
-    @InjectMocks
-    private PostManagmentController controller;
+    @Autowired
+    private MockMvc mockMvc;
 
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        jdbcTemplate.execute("DELETE FROM post");
     }
 
     @Test
-    void addPost_ShouldCreatePost() {
-        // Arrange
-        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "content".getBytes());
-        Post mockPost = new Post();
-        when(postService.createPost(any())).thenReturn(mockPost);
-        when(imageStorageService.savePostImage(eq(mockPost.getId()), any())).thenReturn("images/test.jpg");
+    void testAddPost() throws Exception {
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "test data".getBytes()
+        );
 
-        // Act
-        String result = controller.addPost("Title", "Text", "tags", image);
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/myblog/posts")
+                        .file(image)
+                        .param("title", "New Post")
+                        .param("text", "Post content")
+                        .param("tags", "spring,test"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts"));
 
-        // Assert
-        verify(postService).createPost(any());
-        verify(imageStorageService).savePostImage(eq(mockPost.getId()), eq(image));
-        verify(postService).updatePost(any());
-        assertEquals("redirect:/posts", result);
+        List<Post> posts = postRepository.findAll();
+        assertEquals(1, posts.size());
+        assertEquals("New Post", posts.get(0).getTitle());
+        assertEquals("Post content", posts.get(0).getText());
     }
 
     @Test
-    void likePost_ShouldIncrementLikes() {
-        // Act
-        String result = controller.LikeControll(1L, true);
+    void testDeletePost() throws Exception {
+        Post post = postRepository.save(new Post(
+                1L, "ToDelete", "image.jpg", "Content", "delete", 0, LocalDateTime.now()
+        ));
 
-        // Assert
-        verify(postService).incrementPostLikes(1L);
-        assertEquals("redirect:/posts/1", result);
+        mockMvc.perform(MockMvcRequestBuilders.post("/myblog/posts/{postId}/delete", post.getId()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts"));
+
+        assertFalse(postRepository.findById(post.getId()).isPresent());
     }
 
     @Test
-    void deletePost_ShouldCallService() {
-        // Act
-        String result = controller.DeletePost(1L);
+    void testLikePost() throws Exception {
+        Post post = postRepository.save(new Post(
+                1L, "Test Post", "image.jpg", "Content", "java", 0, LocalDateTime.now()
+        ));
 
-        // Assert
-        verify(postService).deletePost(1L);
-        assertEquals("redirect:/posts", result);
+        // Выполняем запрос на лайк
+        mockMvc.perform(MockMvcRequestBuilders.post("/myblog/posts/{postId}/like", post.getId())
+                        .param("like", "true"))
+                .andExpect(redirectedUrl("/myblog/posts/" + post.getId()));
+
+        Post updatedPost = postRepository.findById(post.getId()).orElseThrow();
+        assertEquals(1, updatedPost.getLikesCount());
     }
 
     @Test
-    void editPost_ShouldReturnFormView() {
-        // Arrange
-        Post post = new Post(1L, "Test", "image.jpg", "Content", "tags", 0, null);
-        when(postService.getPostById(1L)).thenReturn(Optional.of(post));
+    void testEditPost() throws Exception {
+        Post post = postRepository.save(new Post(
+                1L, "Old Title", "image.jpg", "Old Content", "java", 0, LocalDateTime.now()
+        ));
 
-        // Act
-        String result = controller.EditPost(1L, model);
-
-        // Assert
-        verify(postService).getPostById(1L);
-        verify(model).addAttribute("post", post);
-        assertEquals("add-post", result);
+        mockMvc.perform(MockMvcRequestBuilders.get("/myblog/posts/{postId}/edit", post.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("add-post"))
+                .andExpect(model().attribute("post", post));
     }
 
     @Test
-    void updatePost_ShouldUpdatePost() {
-        // Arrange
-        Post existingPost = new Post(1L, "Old", "old.jpg", "Content", "tags", 0, null);
-        when(postService.getPostById(1L)).thenReturn(Optional.of(existingPost));
-        MockMultipartFile image = new MockMultipartFile("image", "new.jpg", "image/jpeg", "content".getBytes());
+    void testUpdatePost() throws Exception {
+        Post post = postRepository.save(new Post(
+                1L, "Original", "image.jpg", "Content", "java", 0, LocalDateTime.now()
+        ));
 
-        // Act
-        String result = controller.updatePost(1L, "New Title", "New Text", "new tags", image);
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "update.jpg", MediaType.IMAGE_JPEG_VALUE, "new data".getBytes()
+        );
 
-        // Assert
-        verify(postService).getPostById(1L);
-        verify(imageStorageService).updatePostImage(eq(1L), eq(image), eq("old.jpg"));
-        verify(postService).updatePost(any());
-        assertEquals("redirect:/posts/1", result);
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/myblog/posts/{postId}", post.getId())
+                        .file(image)
+                        .param("title", "Updated Title")
+                        .param("text", "New Content")
+                        .param("tags", "spring,updated"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts/" + post.getId()));
+
+        Post updatedPost = postRepository.findById(post.getId()).orElseThrow();
+        assertEquals("Updated Title", updatedPost.getTitle());
+        assertEquals("New Content", updatedPost.getText());
+        assertEquals("spring,updated", updatedPost.getTags());
     }
 }

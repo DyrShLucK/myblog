@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Table("comment")
 public class Comment {
+    @Id
     private Long id;
     private String text;
     private LocalDateTime created_at;

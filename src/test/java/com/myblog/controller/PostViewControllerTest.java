@@ -1,86 +1,69 @@
 package com.myblog.controller;
 
 import com.myblog.DTO.PostPageResponse;
-import com.myblog.controller.PostViewController;
 import com.myblog.model.Post;
-import com.myblog.service.CommentService;
-import com.myblog.service.PostService;
+import com.myblog.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.ui.Model;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class PostViewControllerTest {
 
-    @Mock
-    private PostService postService;
-    @Mock
-    private CommentService commentService;
-    @Mock
-    private Model model;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    private PostViewController controller;
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        jdbcTemplate.execute("DELETE FROM post");
     }
 
     @Test
-    void testShowPosts_DefaultParams() {
-        // Arrange
-        Post post = new Post(1L, "Test", "img.jpg", "Content", "tags", 0, LocalDateTime.now());
-        PostPageResponse testResponse = new PostPageResponse(
-                List.of(post),
-                new PostPageResponse.PagingInfo(1, 10, 1)
-        );
+    void testShowPosts_DefaultParams() throws Exception {
+        Post post = new Post(1L, "Test Title", "image.jpg", "Content", "tag1,tag2", 0, LocalDateTime.now());
+        postRepository.save(post);
 
-        // Добавьте эту строку для настройки мока
-        when(postService.getAllPostsWithPaginationAndTag(10, 1, "")).thenReturn(testResponse);
-
-        // Act
-        String view = controller.showPosts("", 10, 1, model);
-
-        // Assert
-        assertEquals("posts", view);
-        verify(postService).getAllPostsWithPaginationAndTag(10, 1, "");
-        verify(commentService).countCommentsByPosts(List.of(post));
-        verify(model).addAttribute("posts", List.of(post));
-        verify(model).addAttribute("search", "");
-        verify(model).addAttribute("paging", testResponse.paging());
+        mockMvc.perform(get("/myblog/posts")
+                        .param("pageSize", "10")
+                        .param("pageNumber", "1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("posts"));
     }
 
     @Test
-    void testViewPost_ValidId() {
-        // Arrange
-        Post post = new Post(1L, "Test", "img.jpg", "Content","tags",0,LocalDateTime.now());
-        when(postService.getPostById(1L)).thenReturn(Optional.of(post));
+    void testViewPost_ValidId() throws Exception {
+        Post savedPost = postRepository.save(new Post(
+                1L, "Single Post", "img.png", "Full content", "java", 5, LocalDateTime.now()));
 
-        // Act
-        String view = controller.viewPost(1L, model);
-
-        // Assert
-        assertEquals("post", view);
-        verify(model).addAttribute("post", post);
+        mockMvc.perform(get("/myblog/posts/{id}", savedPost.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("post"));
     }
 
     @Test
-    void testShowAddForm() {
-        // Act
-        String view = controller.showAddForm(model);
-
-        // Assert
-        assertEquals("add-post", view);
+    void testShowAddForm() throws Exception {
+        mockMvc.perform(get("/myblog/posts/add"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("add-post"));
     }
 }

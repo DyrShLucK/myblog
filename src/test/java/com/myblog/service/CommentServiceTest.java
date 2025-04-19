@@ -3,12 +3,11 @@ package com.myblog.service;
 import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.CommentRepository;
-import com.myblog.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -16,30 +15,26 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class CommentServiceTest {
 
-    @Mock
+    @MockBean
     private CommentRepository commentRepository;
 
-    @InjectMocks
+    @Autowired
     private CommentService commentService;
 
     @Test
     void testCreateComment() {
-        // Arrange
         Comment inputComment = new Comment("Test comment", 1L);
         Comment savedComment = new Comment(1L, "Test comment", LocalDateTime.now(), 1L);
 
         when(commentRepository.save(inputComment)).thenReturn(savedComment);
 
-        // Act
         Comment result = commentService.createComment(inputComment);
 
-        // Assert
         assertNotNull(result.getId());
         assertEquals("Test comment", result.getText());
         assertEquals(1L, result.getPostId());
@@ -48,7 +43,6 @@ public class CommentServiceTest {
 
     @Test
     void testGetAllCommentByPostId() {
-        // Arrange
         Long postId = 1L;
         List<Comment> mockComments = Arrays.asList(
                 new Comment(1L, "Comment 1", LocalDateTime.now(), postId),
@@ -57,10 +51,8 @@ public class CommentServiceTest {
 
         when(commentRepository.findAllByPostId(postId)).thenReturn(mockComments);
 
-        // Act
         List<Comment> result = commentService.getAllCommentByPostId(postId);
 
-        // Assert
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         assertEquals(postId, result.get(0).getPostId());
@@ -69,15 +61,12 @@ public class CommentServiceTest {
 
     @Test
     void testDeleteById() {
-        // Act
         commentService.deleteById(1L);
-
-        // Assert
         verify(commentRepository).deleteById(1L);
     }
+
     @Test
     void testCountCommentsByPosts() {
-        // Arrange
         Post post1 = new Post(1L, "Title 1", "image.jpg","Content 1","tags", 0, LocalDateTime.now());
         Post post2 = new Post(2L, "Title 2","image.jpg", "Content 2","tags", 0, LocalDateTime.now());
         List<Post> posts = List.of(post1, post2);
@@ -91,12 +80,11 @@ public class CommentServiceTest {
         when(commentRepository.findAllByPostId(2L))
                 .thenReturn(List.of(comment3));
 
-        // Act
         Map<Long, List<Comment>> result = commentService.countCommentsByPosts(posts);
 
-        // Assert
         assertEquals(2, result.size());
         assertEquals(2, result.get(1L).size());
         assertEquals(1, result.get(2L).size());
+        verify(commentRepository, times(2)).findAllByPostId(anyLong());
     }
 }

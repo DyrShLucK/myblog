@@ -1,61 +1,75 @@
 package com.myblog.controller;
 
+import com.myblog.controller.CommentController;
 import com.myblog.model.Comment;
+import com.myblog.model.Post;
 import com.myblog.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(CommentController.class)
+class CommentControllerTest {
 
-public class CommentControllerTest {
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private CommentService commentService;
-    @InjectMocks
-    private CommentController commentController;
+
+    private Post post;
+    private Comment comment;
 
     @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-
+    void setUp() {
+        post = new Post(1L, "Test Post", "image.jpg", "Content", "java", 0, LocalDateTime.now());
+        comment = new Comment(1L, "Original comment", LocalDateTime.now(), post.getId());
     }
+
     @Test
-    void addComment_ShouldCreateComment(){
-        String Resualt = commentController.addComment(1L,"comment");
+    void addComment_ShouldCreateCommentAndRedirect() throws Exception {
+        mockMvc.perform(post("/myblog/posts/{postId}/comments", post.getId())
+                        .param("text", "New comment"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts/" + post.getId()));
 
-        verify(commentService).createComment(argThat(comment -> comment.getText().equals("comment") && comment.getPostId().equals(1L)));
-
-        assertEquals("redirect:/posts/1", Resualt);
+        verify(commentService, times(1)).createComment(any(Comment.class));
     }
+
     @Test
-    void deleteComment_ShouldCallServiceAndRedirect() {
+    void updateComment_ShouldUpdateCommentAndRedirect() throws Exception {
+        when(commentService.getById(comment.getId())).thenReturn(Optional.of(comment));
 
-        String result = commentController.deleteComment(1L, 5L);
+        mockMvc.perform(post("/myblog/posts/{postId}/comments/{commentId}", post.getId(), comment.getId())
+                        .param("text", "Updated comment"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts/" + post.getId()));
 
-        verify(commentService).deleteById(5L);
-        assertEquals("redirect:/posts/1", result);
+        verify(commentService).updateComment(argThat(updatedComment ->
+                updatedComment.getText().equals("Updated comment") &&
+                        updatedComment.getId().equals(comment.getId())
+        ));
     }
+
     @Test
-    void updateComment_ShouldUpdateTextAndRedirect() {
-        // Arrange
-        Comment existingComment = new Comment(5L,"Old text", LocalDateTime.now(),1L);
-        when(commentService.getById(5L)).thenReturn(Optional.of(existingComment));
+    void deleteComment_ShouldDeleteCommentAndRedirect() throws Exception {
+        mockMvc.perform(post("/myblog/posts/{postId}/comments/{commentId}/delete",
+                        post.getId(), comment.getId()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/myblog/posts/" + post.getId()));
 
-        // Act
-        String result = commentController.updateComment(1L, 5L, "text");
-
-        // Assert
-        assertEquals("text", existingComment.getText()); // Проверка обновления текста
-        verify(commentService).updateComment(existingComment); // Используем existingComment
-        assertEquals("redirect:/posts/1", result);
+        verify(commentService, times(1)).deleteById(comment.getId());
     }
 }

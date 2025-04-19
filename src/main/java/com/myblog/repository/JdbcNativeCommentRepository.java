@@ -33,8 +33,6 @@ public class JdbcNativeCommentRepository implements CommentRepository{
             ps.setLong(2, comment.getPostId());
             return ps;
         }, keyHolder);
-
-
         Number generatedId = (Number) keyHolder.getKeys().get("id");
         comment.setId(generatedId.longValue());
         return comment;

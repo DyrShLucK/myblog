@@ -59,7 +59,6 @@ public class PostViewController {
     //Отображение добавления поста
     @GetMapping("/posts/add")
     public String showAddForm(Model model) {
-        System.out.println("Метод showAddForm вызван!"); // Для теста
         return "add-post";
     }
 }
