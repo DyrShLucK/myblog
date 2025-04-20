@@ -1,5 +1,5 @@
 # myblog
-blog для Яндекс_Prakticum
+blog для Яндекс_Prakticum V2.0
 # Описание проекта
     Простое веб-приложение для ведения блога с использованием Spring Boot. Позволяет:
 
@@ -11,11 +11,11 @@ blog для Яндекс_Prakticum
 # Просматривать посты с пагинацией
     Технологии
     Java 21
-    Spring Framework 6.2.1
+    Spring Boot 6.2.1
     Spring Data JDBC
     Thymeleaf
     H2 Database (in-memory)
-    Maven
+    Gradle
 # Структура проекта
 
     src/main/java/com/myblog
@@ -27,9 +27,8 @@ blog для Яндекс_Prakticum
 # Запуск приложения
     Склонируйте репозиторий
     Выполните:
-    mvn clean package
-    Далее загрузите создавшийся war в папке target в Apache Tomcat, а именно в директорюю Webapp, а потом запустите bin/startapp
-    Приложение доступно на:
+    bootRun
+    Затем при успешном запуске перейдите по ссылке
     http://localhost:8080/myblog/posts
 ### Возможность добавление постов до запуска приложения в data.sql
     INSERT INTO post (title, image, text, tags) VALUES
