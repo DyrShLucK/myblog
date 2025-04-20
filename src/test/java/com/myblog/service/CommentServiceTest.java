@@ -3,11 +3,19 @@ package com.myblog.service;
 import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.CommentRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -17,15 +25,18 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ActiveProfiles("test")
 public class CommentServiceTest {
-
-    @MockBean
+    //Используем обычные Unit тесты без поднятия SpringBoot
+    @Mock
     private CommentRepository commentRepository;
 
-    @Autowired
+    @InjectMocks
     private CommentService commentService;
-
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
     @Test
     void testCreateComment() {
         Comment inputComment = new Comment("Test comment", 1L);

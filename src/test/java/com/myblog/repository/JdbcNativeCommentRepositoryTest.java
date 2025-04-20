@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Import(JdbcNativeCommentRepository.class)
 @Transactional
 @Rollback
+@ActiveProfiles("test")
 class JdbcNativeCommentRepositoryTest {
 
     @Autowired
@@ -43,6 +46,7 @@ class JdbcNativeCommentRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void save_shouldAddCommentToDatabase() {
         Comment newComment = new Comment(
                 "Test comment",
@@ -90,6 +94,7 @@ class JdbcNativeCommentRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void deleteById_shouldRemoveCommentFromDatabase() {
         // Создаем комментарий
         jdbcTemplate.update(
@@ -102,14 +107,13 @@ class JdbcNativeCommentRepositoryTest {
                 "SELECT id FROM comment WHERE text = 'To delete'",
                 Long.class
         );
-
-        // Удаляем и проверяем
         commentRepository.deleteById(idToDelete);
         List<Comment> comments = commentRepository.findAllByPostId(1L);
         assertTrue(comments.isEmpty());
     }
 
     @Test
+    @DirtiesContext
     void save_shouldGenerateCreatedAtAutomatically() {
         Comment newComment = new Comment("Test comment", 1L);
         Comment savedComment = commentRepository.save(newComment);
@@ -123,6 +127,7 @@ class JdbcNativeCommentRepositoryTest {
         assertTrue(dbCreatedAt.isBefore(LocalDateTime.now().plusSeconds(1)));
     }
     @Test
+    @DirtiesContext
     void updateComment_ShouldUpdateCommentInDB(){
         Comment comment = new Comment("Text", 1L);
         comment = commentRepository.save(comment);

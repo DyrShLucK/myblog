@@ -23,7 +23,6 @@ public class CommentService {
     public Comment createComment(Comment comment){
         return commentRepository.save(comment);
     }
-    @Cacheable(value = "comments", key = "#postId")
     public List<Comment> getAllCommentByPostId(Long post_id){
         return commentRepository.findAllByPostId(post_id);
     }

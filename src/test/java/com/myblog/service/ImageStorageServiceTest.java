@@ -4,6 +4,8 @@ import com.myblog.service.ImageStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,7 +16,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
-
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ImageStorageServiceTest {
 
     private ImageStorageService imageStorageService;
@@ -37,7 +39,7 @@ class ImageStorageServiceTest {
         String result = imageStorageService.savePostImage(1L, mockFile);
 
         // Assert
-        assertEquals("images/post_1", result);
+        assertEquals("/images/post_1", result);
         verify(mockFile).transferTo(any(Path.class));
     }
 

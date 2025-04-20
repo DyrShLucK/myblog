@@ -29,13 +29,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "all_posts", allEntries = true),
-                    @CacheEvict(value = "posts_by_tag", allEntries = true),
-                    @CacheEvict(value = "post", key = "#id")
-            }
-    )
+
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
     }

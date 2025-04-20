@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(JdbcNativePostRepository.class)
 @Transactional
 @Rollback
+@ActiveProfiles("test")
 class JdbcNativePostRepositoryTest {
 
     @Autowired
@@ -41,6 +44,7 @@ class JdbcNativePostRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void save_ShouldPersistPostWithGeneratedIdAndTimestamp() {
         // Act
         Post savedPost = postRepository.save(testPost);
@@ -95,6 +99,7 @@ class JdbcNativePostRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void incrementLikes_ShouldIncreaseLikeCount() {
         // Arrange
         Post post = createTestPost("Like Test", "test");
@@ -109,6 +114,7 @@ class JdbcNativePostRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void updatePost_ShouldModifyPostFields() {
         // Arrange
         Post post = createTestPost("Original Title", "old_tag");
@@ -126,6 +132,7 @@ class JdbcNativePostRepositoryTest {
     }
 
     @Test
+    @DirtiesContext
     void deleteById_ShouldRemovePost() {
         // Arrange
         Post post = createTestPost("To Delete", "delete");

@@ -21,6 +21,7 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
+
     public Post save(Post post) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
