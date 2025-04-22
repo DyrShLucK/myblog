@@ -1,8 +1,6 @@
 package com.myblog.service;
 
 import com.myblog.DTO.PostPageResponse;
-import com.myblog.controller.PostViewController;
-import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,16 +20,26 @@ public class PostService {
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
-
+    @Caching(
+            put = {
+                    @CachePut(value = "postById", key = "#post.id"),
+                    @CachePut(value = "allPosts", key = "#post.id") // Если нужно
+            }
+    )
     public Post createPost(Post post) {
         return postRepository.save(post);
     }
 
-
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "allPosts", allEntries = true),
+                    @CacheEvict(value = "postById", key = "#postId")
+            }
+    )
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
     }
-    @Cacheable("all_posts")
+
     public PostPageResponse getAllPostsWithPaginationAndTag(int pageSize, int pageNumber, String searchTag) {
         List<Post> posts;
         int totalPosts;
@@ -53,33 +59,52 @@ public class PostService {
         );
         return new PostPageResponse(posts, paging);
     }
-    public List<Post> getAllPosts(){
+
+    @Cacheable(value = "allPosts")
+    public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
+    @Cacheable(value = "postsByTag", key = "#tag")
     public List<Post> getPostsByTag(String tag) {
         return postRepository.findByTag(tag);
     }
 
+    @Caching(
+            put = {
+                    @CachePut(value = "likesCount", key = "#postId"),
+                    @CachePut(value = "postById", key = "#postId")
+            }
+    )
     public void incrementPostLikes(Long postId) {
         postRepository.incrementLikes(postId);
     }
-    public void decrementLikes(Long postId){
+
+    @Caching(
+            put = {
+                    @CachePut(value = "likesCount", key = "#postId"),
+                    @CachePut(value = "postById", key = "#postId")
+            }
+    )
+    public void decrementLikes(Long postId) {
         postRepository.decrementLikes(postId);
     }
 
+    @Cacheable(value = "likesCount", key = "#postId")
     public Optional<Integer> getLikesCount(Long postId) {
         return postRepository.getLikesCount(postId);
     }
 
-    @Cacheable(value = "post", key = "#id")
     public Optional<Post> getPostById(Long id) {
         return postRepository.findById(id);
     }
-
-    @CachePut(value = "post", key = "#post.id")
-    public void  updatePost(Post post){
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "allPosts", allEntries = true),
+                    @CacheEvict(value = "postById", key = "#post.id")
+            }
+    )
+    public void updatePost(Post post) {
         postRepository.UpdatePost(post);
     }
-
 }
