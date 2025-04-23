@@ -61,7 +61,7 @@ public class PostManagmentController {
     @GetMapping("posts/{postId}/edit")
     public String EditPost(@PathVariable Long postId,
                            Model model){
-        model.addAttribute("post", postService.getPostById(postId).get());
+        model.addAttribute("post", postService.getPostById(postId));
         return "add-post";
     }
 
@@ -72,7 +72,7 @@ public class PostManagmentController {
                               @RequestParam("text") String text,
                               @RequestParam("tags") String tags,
                               @RequestPart("image")MultipartFile image){
-        Post post = postService.getPostById(postId).orElseThrow(() -> new RuntimeException("Пост не найден"));
+        Post post = postService.getPostById(postId);
         String imageUrl = post.getImage();
         imageStorageService.updatePostImage(postId, image,imageUrl);
         post.setTitle(title);

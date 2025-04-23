@@ -48,8 +48,7 @@ public class PostViewController {
     //Страница поста
     @GetMapping("/posts/{id}")
     public String viewPost(@PathVariable("id") Long id, Model model) {
-        Post post = postService.getPostById(id)
-                .orElseThrow();
+        Post post = postService.getPostById(id);
         List<Comment> comments = commentService.getAllCommentByPostId(id);
         model.addAttribute("comments", comments);
         model.addAttribute("post", post);

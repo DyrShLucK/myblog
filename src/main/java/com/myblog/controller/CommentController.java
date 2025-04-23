@@ -37,8 +37,7 @@ public class CommentController {
     public String updateComment(@PathVariable Long postId,
                                 @PathVariable Long commentId,
                                 @RequestParam("text") String newText) {
-        Comment comment = commentService.getById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid comment Id:" + commentId));
+        Comment comment = commentService.getById(commentId);
         comment.setText(newText);
         commentService.updateComment(comment);
         return "redirect:/myblog/posts/" + postId;
