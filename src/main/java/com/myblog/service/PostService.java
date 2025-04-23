@@ -1,6 +1,7 @@
 package com.myblog.service;
 
 import com.myblog.DTO.PostPageResponse;
+import com.myblog.excepetion.PostNotFoundException;
 import com.myblog.model.Post;
 import com.myblog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,8 +96,8 @@ public class PostService {
         return postRepository.getLikesCount(postId);
     }
 
-    public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+    public Post getPostById(Long id) {
+        return postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
     }
     @Caching(
             evict = {

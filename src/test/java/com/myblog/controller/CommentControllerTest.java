@@ -52,7 +52,7 @@ class CommentControllerTest {
 
     @Test
     void updateComment_ShouldUpdateCommentAndRedirect() throws Exception {
-        when(commentService.getById(comment.getId())).thenReturn(Optional.of(comment));
+        when(commentService.getById(comment.getId())).thenReturn(comment);
 
         mockMvc.perform(post("/myblog/posts/{postId}/comments/{commentId}", post.getId(), comment.getId())
                         .param("text", "Updated comment"))

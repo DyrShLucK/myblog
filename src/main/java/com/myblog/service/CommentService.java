@@ -1,5 +1,7 @@
 package com.myblog.service;
 
+import com.myblog.excepetion.CommentNotFoundExcepetion;
+import com.myblog.excepetion.PostNotFoundException;
 import com.myblog.model.Comment;
 import com.myblog.model.Post;
 import com.myblog.repository.CommentRepository;
@@ -29,8 +31,8 @@ public class CommentService {
     public void deleteById(Long id){
         commentRepository.deleteById(id);
     }
-    public Optional<Comment> getById(Long id){
-        return commentRepository.findById(id);
+    public Comment getById(Long id){
+        return commentRepository.findById(id).orElseThrow(() -> new CommentNotFoundExcepetion(id));
     }
     public void updateComment(Comment comment){
         commentRepository.updateComment(comment);
